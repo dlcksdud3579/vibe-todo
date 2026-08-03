@@ -73,6 +73,41 @@ ipcMain.handle('git:period-log', async (_event, { folderPath, since, until } = {
   });
 });
 
+ipcMain.handle('git:is-repo', async (_event, folderPath) => {
+  if (!folderPath) return { ok: false, connected: false, error: '폴더가 연결되지 않았습니다.' };
+  return new Promise(resolve => {
+    execFile('git', ['-C', folderPath, 'rev-parse', '--is-inside-work-tree'], { windowsHide: true }, (error, stdout, stderr) => {
+      if (error) return resolve({ ok: true, connected: false, error: (stderr || 'Git 저장소가 아닙니다.').trim() });
+      resolve({ ok: true, connected: stdout.trim() === 'true' });
+    });
+  });
+});
+
+ipcMain.handle('git:file-meta', async (_event, { folderPath, fileName } = {}) => {
+  if (!folderPath || !fileName || path.basename(fileName) !== fileName || !fileName.toLowerCase().endsWith('.md')) return { ok: false, error: 'Markdown 파일 정보 조건이 부족합니다.' };
+  const runGit = args => new Promise(resolve => execFile('git', ['-C', folderPath, ...args], { windowsHide: true, maxBuffer: 1024 * 1024 }, (error, stdout) => resolve(error ? '' : stdout)));
+  const latestRaw = (await runGit(['log', '-1', '--date=short', '--format=%h%x09%ad%x09%an%x09%s', '--', fileName])).trim();
+  const [latestHash = '', latestDate = '', latestAuthor = '', ...latestMessage] = latestRaw.split('\t');
+  const latestCommit = latestHash ? { hash: latestHash, date: latestDate, author: latestAuthor, message: latestMessage.join('\t') } : null;
+  const blame = await runGit(['blame', '--line-porcelain', '--', fileName]);
+  const lineCommits = {};
+  const hashes = new Set();
+  let lineNumber = null;
+  let lineHash = '';
+  blame.split(/\r?\n/).forEach(line => {
+    const header = line.match(/^([0-9a-f^]+)\s+\d+\s+(\d+)(?:\s+\d+)?$/);
+    if (header) { lineHash = header[1].replace(/^\^/, ''); lineNumber = Number(header[2]) - 1; hashes.add(lineHash); }
+    const time = line.match(/^author-time\s+(\d+)$/);
+    if (time && Number.isInteger(lineNumber)) lineCommits[lineNumber] = { hash: lineHash, date: new Date(Number(time[1]) * 1000).toISOString().slice(0, 10) };
+  });
+  await Promise.all([...hashes].map(async hash => {
+    const raw = (await runGit(['show', '-s', '--date=short', '--format=%h%x09%ad%x09%an%x09%s', hash])).trim();
+    const [shortHash = hash, date = '', author = '', ...message] = raw.split('\t');
+    Object.values(lineCommits).filter(commit => commit.hash === hash).forEach(commit => Object.assign(commit, { hash: shortHash, date, author, message: message.join('\t') }));
+  }));
+  return { ok: true, lastModified: latestDate, latestCommit, lineCommits };
+});
+
 ipcMain.handle('workspace:read-markdown-folder', async (_event, folderPath) => {
   if (!folderPath) return { ok: false, error: 'TODO 폴더가 지정되지 않았습니다.' };
   try {
