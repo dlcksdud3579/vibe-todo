@@ -1,5 +1,6 @@
 const { app, BrowserWindow, ipcMain, dialog } = require('electron');
 const path = require('path');
+const fs = require('fs/promises');
 const { spawn } = require('child_process');
 
 // Python은 나중에 python/dist 아래에 PyInstaller 결과물을 넣어 연결합니다.
@@ -57,6 +58,43 @@ ipcMain.handle('python:run', async (_event, { args = [], input = null } = {}) =>
 ipcMain.handle('workspace:choose-folder', async () => {
   const result = await dialog.showOpenDialog({ properties: ['openDirectory'] });
   return result.canceled ? null : result.filePaths[0];
+});
+
+ipcMain.handle('workspace:read-markdown-folder', async (_event, folderPath) => {
+  if (!folderPath) return { ok: false, error: 'TODO 폴더가 지정되지 않았습니다.' };
+  try {
+    const entries = await fs.readdir(folderPath, { withFileTypes: true });
+    const files = [];
+    for (const entry of entries.filter(item => item.isFile() && item.name.toLowerCase().endsWith('.md'))) {
+      const filePath = path.join(folderPath, entry.name);
+      files.push({ name: entry.name.replace(/\.md$/i, ''), fileName: entry.name, content: await fs.readFile(filePath, 'utf8') });
+    }
+    return { ok: true, files };
+  } catch (error) {
+    return { ok: false, error: error.message };
+  }
+});
+
+function safeMarkdownPath(folderPath, fileName) {
+  const root = path.resolve(folderPath);
+  const target = path.resolve(root, fileName);
+  if (path.dirname(target) !== root || !target.toLowerCase().endsWith('.md')) throw new Error('허용되지 않은 Markdown 파일 경로입니다.');
+  return target;
+}
+
+ipcMain.handle('workspace:write-markdown', async (_event, { folderPath, fileName, content }) => {
+  try { await fs.writeFile(safeMarkdownPath(folderPath, fileName), content, 'utf8'); return { ok: true }; }
+  catch (error) { return { ok: false, error: error.message }; }
+});
+
+ipcMain.handle('workspace:create-markdown', async (_event, { folderPath, fileName, content = '' }) => {
+  try { await fs.writeFile(safeMarkdownPath(folderPath, fileName), content, { encoding: 'utf8', flag: 'wx' }); return { ok: true }; }
+  catch (error) { return { ok: false, error: error.message }; }
+});
+
+ipcMain.handle('workspace:delete-markdown', async (_event, { folderPath, fileName }) => {
+  try { await fs.unlink(safeMarkdownPath(folderPath, fileName)); return { ok: true }; }
+  catch (error) { return { ok: false, error: error.message }; }
 });
 
 app.whenReady().then(() => {
