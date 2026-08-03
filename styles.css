@@ -19,3 +19,5 @@ button, input, textarea, select { font:inherit; } button { cursor:pointer; }
 .runtime-badge { color:var(--accent); border:1px solid rgba(185,245,107,.28); background:rgba(185,245,107,.08); border-radius:20px; padding:4px 8px; font:9px 'DM Mono'; }
 .hero-actions { display:flex; gap:8px; flex-wrap:wrap; }
 .panel-actions { display:flex; gap:8px; }
+.check.hold { background:rgba(255,176,107,.16); border-color:var(--orange); color:var(--orange); }
+.todo-row.on-hold .todo-title { color:var(--orange); }

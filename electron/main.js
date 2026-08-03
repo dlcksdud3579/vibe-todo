@@ -74,7 +74,7 @@ ipcMain.handle('workspace:read-markdown-folder', async (_event, folderPath) => {
       const filePath = path.join(folderPath, entry.name);
       const content = await fs.readFile(filePath, 'utf8');
       // 일반 문서나 README는 제외하고, Markdown 체크박스가 있는 파일만 TODO로 취급합니다.
-      if (!/^\s*[-*+]\s+\[[ xX]\]\s+.+$/m.test(content)) continue;
+      if (!/^\s*[-*+]\s+\[[ xX>]\]\s+.+$/m.test(content)) continue;
       files.push({ name: entry.name.replace(/\.md$/i, ''), fileName: entry.name, isMain: entry.name.toLowerCase() === mainFileName, content });
     }
     files.sort((a, b) => Number(b.isMain) - Number(a.isMain) || a.name.localeCompare(b.name));
