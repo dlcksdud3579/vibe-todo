@@ -21,3 +21,9 @@ button, input, textarea, select { font:inherit; } button { cursor:pointer; }
 .panel-actions { display:flex; gap:8px; }
 .check.hold { background:rgba(255,176,107,.16); border-color:var(--orange); color:var(--orange); }
 .todo-row.on-hold .todo-title { color:var(--orange); }
+.file-tab { text-align:left; }
+.file-tab-name { display:block; }
+.file-tab-stats { display:flex; align-items:center; gap:5px; margin-top:6px; color:var(--muted); font:9px 'DM Mono'; }
+.file-tab-stats span { margin-left:0; }
+.file-progress { width:45px; height:4px; border-radius:3px; background:#293442; overflow:hidden; }
+.file-progress i { display:block; height:100%; border-radius:3px; background:var(--accent-2); }

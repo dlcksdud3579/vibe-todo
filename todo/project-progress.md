@@ -18,6 +18,7 @@
 - [x] 메인 TODO 파일을 파일 목록 최상단에 표시
 - [x] 현재 Markdown 파일에 새 TODO 추가
 - [x] TODO 보류 상태 추가
+- [x] TODO 파일별 완료 진행률 표시
 - [x] GitHub 원격 저장소 및 브랜치 연결
 - [ ] 실제 Electron 설치·실행 환경 검증
 
