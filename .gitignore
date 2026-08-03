@@ -15,6 +15,7 @@ __pycache__/
 *.py[cod]
 .venv/
 python/dist/*
+!python/dist/
 !python/dist/.gitkeep
 
 # Local/editor/system files
@@ -25,4 +26,3 @@ python/dist/*
 *.log
 Thumbs.db
 .DS_Store
-
