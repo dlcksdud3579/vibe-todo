@@ -27,3 +27,13 @@ button, input, textarea, select { font:inherit; } button { cursor:pointer; }
 .file-tab-stats span { margin-left:0; }
 .file-progress { width:45px; height:4px; border-radius:3px; background:#293442; overflow:hidden; }
 .file-progress i { display:block; height:100%; border-radius:3px; background:var(--accent-2); }
+.file-progress-list { margin-top:26px; border-top:1px solid var(--line); padding-top:20px; }
+.file-progress-heading { color:var(--muted); font-size:11px; margin-bottom:12px; }
+.file-progress-row { width:100%; display:grid; grid-template-columns:minmax(0,1fr) 72px auto; align-items:center; gap:9px; border:0; border-bottom:1px solid rgba(41,52,66,.7); background:transparent; color:var(--text); text-align:left; padding:11px 0; }
+.file-progress-row:last-child { border-bottom:0; }
+.file-progress-row:hover .file-progress-name { color:var(--accent); }
+.file-progress-name { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:11px; }
+.file-progress-track { height:6px; border-radius:4px; background:#293442; overflow:hidden; }
+.file-progress-track i { display:block; height:100%; border-radius:4px; background:var(--accent-2); }
+.file-progress-value { color:var(--muted); font:10px 'DM Mono'; white-space:nowrap; }
+.file-progress-value small { color:#718090; font-size:9px; }
