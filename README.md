@@ -26,3 +26,5 @@ npm run build:linux
 ```
 
 Python 기능은 `python/dist`에 PyInstaller 실행 파일을 추가한 뒤 Electron IPC로 호출할 수 있습니다.
+
+프로젝트 진행 TODO는 [`todo/project-progress.md`](todo/project-progress.md)에서 관리합니다.
