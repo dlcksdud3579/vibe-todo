@@ -14,6 +14,7 @@
 - [x] TODO 완료·수정·추가 내용을 원본 Markdown에 반영
 - [x] TODO 폴더 Markdown 파일 수동 동기화 버튼
 - [x] TODO 폴더에서 일반 Markdown 파일 필터링
+- [x] 프로젝트 메인 TODO 파일은 일반 Markdown 필터링 예외 처리
 - [x] 프로젝트 폴더에 메인 TODO 파일 자동 생성
 - [x] 메인 TODO 파일을 파일 목록 최상단에 표시
 - [x] 현재 Markdown 파일에 새 TODO 추가

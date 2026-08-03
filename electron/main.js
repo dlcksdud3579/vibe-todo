@@ -122,9 +122,10 @@ ipcMain.handle('workspace:read-markdown-folder', async (_event, folderPath) => {
       const filePath = path.join(folderPath, entry.name);
       const content = await fs.readFile(filePath, 'utf8');
       const stat = await fs.stat(filePath);
-      // 일반 문서나 README는 제외하고, Markdown 체크박스가 있는 파일만 TODO로 취급합니다.
-      if (!/^\s*[-*+]\s+\[[ xX>]\]\s+.+$/m.test(content)) continue;
-      files.push({ name: entry.name.replace(/\.md$/i, ''), fileName: entry.name, isMain: entry.name.toLowerCase() === mainFileName, content, modifiedAt: stat.mtime.toISOString() });
+      const isMain = entry.name.toLowerCase() === mainFileName;
+      // 일반 문서나 README는 제외하되, 프로젝트 메인 TODO는 설명만 있어도 항상 표시합니다.
+      if (!isMain && !/^\s*[-*+]\s+\[[ xX>]\]\s+.+$/m.test(content)) continue;
+      files.push({ name: entry.name.replace(/\.md$/i, ''), fileName: entry.name, isMain, content, modifiedAt: stat.mtime.toISOString() });
     }
     files.sort((a, b) => Number(b.isMain) - Number(a.isMain) || a.name.localeCompare(b.name));
     return { ok: true, files };
