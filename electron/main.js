@@ -63,6 +63,11 @@ ipcMain.handle('workspace:choose-folder', async () => {
 ipcMain.handle('workspace:read-markdown-folder', async (_event, folderPath) => {
   if (!folderPath) return { ok: false, error: 'TODO 폴더가 지정되지 않았습니다.' };
   try {
+    const mainFileName = '00-project-main.md';
+    const mainFilePath = path.join(folderPath, mainFileName);
+    try { await fs.access(mainFilePath); } catch {
+      await fs.writeFile(mainFilePath, '# 프로젝트 메인 TODO\n\n## 목표\n\n프로젝트의 전체 목표와 방향을 작성하세요.\n\n## 핵심 TODO\n\n- [ ] 프로젝트 목표 정리\n- [ ] 다음 개발 단계 결정\n\n## 메모\n\n', 'utf8');
+    }
     const entries = await fs.readdir(folderPath, { withFileTypes: true });
     const files = [];
     for (const entry of entries.filter(item => item.isFile() && item.name.toLowerCase().endsWith('.md'))) {
@@ -70,8 +75,9 @@ ipcMain.handle('workspace:read-markdown-folder', async (_event, folderPath) => {
       const content = await fs.readFile(filePath, 'utf8');
       // 일반 문서나 README는 제외하고, Markdown 체크박스가 있는 파일만 TODO로 취급합니다.
       if (!/^\s*[-*+]\s+\[[ xX]\]\s+.+$/m.test(content)) continue;
-      files.push({ name: entry.name.replace(/\.md$/i, ''), fileName: entry.name, content });
+      files.push({ name: entry.name.replace(/\.md$/i, ''), fileName: entry.name, isMain: entry.name.toLowerCase() === mainFileName, content });
     }
+    files.sort((a, b) => Number(b.isMain) - Number(a.isMain) || a.name.localeCompare(b.name));
     return { ok: true, files };
   } catch (error) {
     return { ok: false, error: error.message };
