@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#10151d" />
+    <title>VibeTodo — Coding command center</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar">
+        <div class="brand"><span class="brand-mark">✳</span><span>vibetodo</span></div>
+        <div class="sidebar-label">WORKSPACE</div>
+        <nav id="project-nav" class="project-nav"></nav>
+        <button id="new-project" class="add-project"><span>＋</span> 새 프로젝트</button>
+        <div class="sidebar-footer">
+          <button id="export-data" class="text-button">↗ 백업 내보내기</button>
+          <label class="text-button import-label">↙ 백업 가져오기<input id="import-data" type="file" accept="application/json" /></label>
+        </div>
+      </aside>
+
+      <main class="main-content">
+        <header class="topbar">
+          <div class="breadcrumb"><span>WORKSPACE</span><b>/</b><strong id="breadcrumb-project">프로젝트</strong></div>
+          <div class="top-actions"><span id="runtime-badge" class="runtime-badge">WEB MODE</span><span id="save-status" class="save-status">자동 저장됨</span><button id="reset-demo" class="icon-button" title="데모 데이터로 초기화">↺</button></div>
+        </header>
+
+        <div class="content-wrap">
+          <section class="hero-row">
+            <div>
+              <p class="eyebrow">CODING COMMAND CENTER</p>
+              <h1 id="project-title">프로젝트</h1>
+              <p id="project-description" class="project-description"></p>
+            </div>
+            <button id="edit-project" class="secondary-button">프로젝트 편집</button>
+          </section>
+
+          <section class="stats-grid" id="stats-grid"></section>
+
+          <section class="focus-card" id="next-todo-card"></section>
+
+          <div class="workspace-grid">
+            <section class="panel todo-panel">
+              <div class="panel-heading">
+                <div><p class="eyebrow">TASK QUEUE</p><h2>TODO 파일</h2></div>
+                <button id="new-file" class="primary-button">＋ TODO 파일</button>
+              </div>
+              <div id="file-tabs" class="file-tabs"></div>
+              <div class="todo-toolbar"><div id="file-meta"></div><select id="status-filter"><option value="all">전체 상태</option><option value="todo">예정</option><option value="doing">진행 중</option><option value="done">완료</option></select></div>
+              <div id="todo-list" class="todo-list"></div>
+            </section>
+
+            <aside class="panel insight-panel">
+              <div class="panel-heading compact"><div><p class="eyebrow">PROJECT HEALTH</p><h2>진행 현황</h2></div></div>
+              <div id="health-content"></div>
+              <div class="divider"></div>
+              <div class="panel-heading compact"><div><p class="eyebrow">QUICK NOTES</p><h2>메모</h2></div><button id="add-note" class="small-plus">＋</button></div>
+              <div id="notes-list" class="notes-list"></div>
+            </aside>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <div id="modal-root"></div>
+    <div id="toast" class="toast"></div>
+    <script src="app.js"></script>
+  </body>
+</html>

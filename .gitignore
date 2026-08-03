@@ -1,0 +1,28 @@
+node_modules/
+dist/
+build/
+release/
+
+# Electron builder output
+*.exe
+*.dmg
+*.AppImage
+*.blockmap
+latest.yml
+
+# Python generated files
+__pycache__/
+*.py[cod]
+.venv/
+python/dist/*
+!python/dist/.gitkeep
+
+# Local/editor/system files
+.env
+.env.*
+.idea/
+.vscode/
+*.log
+Thumbs.db
+.DS_Store
+
