@@ -1,10 +1,44 @@
-const { app, BrowserWindow, ipcMain, dialog } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog, shell } = require('electron');
 const path = require('path');
+const { watch } = require('fs');
 const fs = require('fs/promises');
 const { spawn, execFile } = require('child_process');
 
 // Python은 나중에 python/dist 아래에 PyInstaller 결과물을 넣어 연결합니다.
 const PYTHON_BINARY = process.platform === 'win32' ? 'todo-bridge.exe' : 'todo-bridge';
+const HOT_RELOAD_ENABLED = !app.isPackaged && process.argv.includes('--hot-reload');
+const HOT_RELOAD_FILES = new Set(['index.html', 'styles.css', 'app.js']);
+let hotReloadWatcher = null;
+let hotReloadTimer = null;
+
+function startHotReload() {
+  if (!HOT_RELOAD_ENABLED || hotReloadWatcher) return;
+
+  const projectRoot = path.join(__dirname, '..');
+  hotReloadWatcher = watch(projectRoot, { persistent: false }, (_eventType, fileName) => {
+    if (!fileName || !HOT_RELOAD_FILES.has(path.basename(fileName.toString()))) return;
+
+    clearTimeout(hotReloadTimer);
+    hotReloadTimer = setTimeout(() => {
+      BrowserWindow.getAllWindows().forEach((window) => {
+        if (!window.isDestroyed()) window.webContents.reloadIgnoringCache();
+      });
+    }, 150);
+  });
+
+  hotReloadWatcher.on('error', (error) => {
+    console.warn(`[hot-reload] 파일 감시를 중단합니다: ${error.message}`);
+    hotReloadWatcher?.close();
+    hotReloadWatcher = null;
+  });
+}
+
+function stopHotReload() {
+  clearTimeout(hotReloadTimer);
+  hotReloadTimer = null;
+  hotReloadWatcher?.close();
+  hotReloadWatcher = null;
+}
 
 function createWindow() {
   const win = new BrowserWindow({
@@ -55,9 +89,43 @@ ipcMain.handle('python:run', async (_event, { args = [], input = null } = {}) =>
   });
 });
 
-ipcMain.handle('workspace:choose-folder', async () => {
-  const result = await dialog.showOpenDialog({ properties: ['openDirectory'] });
+ipcMain.handle('workspace:choose-folder', async (_event, { defaultPath } = {}) => {
+  const result = await dialog.showOpenDialog({
+    properties: ['openDirectory'],
+    ...(defaultPath ? { defaultPath } : {})
+  });
   return result.canceled ? null : result.filePaths[0];
+});
+
+async function validateDirectory(folderPath) {
+  if (!folderPath || typeof folderPath !== 'string') {
+    return { ok: false, error: '프로젝트 경로를 입력해주세요.' };
+  }
+
+  try {
+    const resolvedPath = path.resolve(folderPath.trim());
+    const stat = await fs.stat(resolvedPath);
+    if (!stat.isDirectory()) return { ok: false, error: '선택한 경로가 폴더가 아닙니다.' };
+    return { ok: true, path: resolvedPath };
+  } catch {
+    return { ok: false, error: '존재하거나 접근 가능한 프로젝트 폴더가 아닙니다.' };
+  }
+}
+
+ipcMain.handle('workspace:validate-folder', async (_event, folderPath) => validateDirectory(folderPath));
+
+ipcMain.handle('workspace:open-vscode', async (_event, folderPath) => {
+  const validation = await validateDirectory(folderPath);
+  if (!validation.ok) return validation;
+
+  try {
+    const normalizedPath = validation.path.replace(/\\/g, '/');
+    const encodedPath = normalizedPath.split('/').map(encodeURIComponent).join('/');
+    await shell.openExternal(`vscode://file/${encodedPath}`);
+    return { ok: true };
+  } catch (error) {
+    return { ok: false, error: `VS Code를 열 수 없습니다. 설치 여부를 확인해주세요. (${error.message})` };
+  }
 });
 
 ipcMain.handle('git:period-log', async (_event, { folderPath, since, until } = {}) => {
@@ -158,10 +226,13 @@ ipcMain.handle('workspace:delete-markdown', async (_event, { folderPath, fileNam
 
 app.whenReady().then(() => {
   createWindow();
+  startHotReload();
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow();
   });
 });
+
+app.on('before-quit', stopHotReload);
 
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') app.quit();

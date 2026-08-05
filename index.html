@@ -35,9 +35,12 @@
             <div>
               <p class="eyebrow">CODING COMMAND CENTER</p>
               <h1 id="project-title">프로젝트</h1>
-              <p id="project-description" class="project-description"></p><span id="project-git-status" class="git-project-status unknown">● Git 연결 확인 중</span>
+              <p id="project-description" class="project-description"></p>
+              <p id="project-path" class="project-path"></p>
+              <p id="todo-path" class="todo-path"></p>
+              <span id="project-git-status" class="git-project-status unknown">● Git 연결 확인 중</span>
             </div>
-            <div class="hero-actions"><button id="choose-folder" class="secondary-button">TODO 폴더 연결</button><button id="edit-project" class="secondary-button">프로젝트 편집</button></div>
+            <div class="hero-actions"><button id="open-vscode" class="primary-button">VS Code에서 열기</button><button id="edit-project" class="secondary-button">프로젝트 편집</button></div>
           </section>
 
           <section class="stats-grid" id="stats-grid"></section>
@@ -72,7 +75,7 @@
           </section>
           <section id="dashboard-stats" class="stats-grid"></section>
           <div class="dashboard-grid">
-            <section class="panel dashboard-today-panel"><div class="panel-heading"><div><p class="eyebrow">MONDAY — FRIDAY</p><h2>요일별 작업</h2></div><span id="dashboard-today-count" class="panel-caption"></span></div><div id="dashboard-items" class="dashboard-items"></div><div class="dashboard-section-divider"></div><div class="panel-heading compact"><div><p class="eyebrow">PROJECT MAIN TODO</p><h2>프로젝트 메인 TODO</h2></div></div><div id="dashboard-main-todos" class="dashboard-items"></div></section>
+            <section class="panel dashboard-today-panel"><div class="panel-heading"><div><p class="eyebrow">FRIDAY — THURSDAY</p><h2>요일별 작업</h2></div><span id="dashboard-today-count" class="panel-caption"></span></div><div id="dashboard-items" class="dashboard-items"></div><div class="dashboard-section-divider"></div><div class="panel-heading compact"><div><p class="eyebrow">PROJECT MAIN TODO</p><h2>프로젝트 메인 TODO</h2></div></div><div id="dashboard-main-todos" class="dashboard-items"></div></section>
           <aside class="panel"><div class="panel-heading compact"><div><p class="eyebrow">PROJECT SNAPSHOT</p><h2>프로젝트 현황</h2></div></div><div id="dashboard-projects" class="dashboard-projects"></div><div class="dashboard-section-divider"></div><div class="panel-heading compact"><div><p class="eyebrow">ACTIVITY PERIODS</p><h2>기간별 Git 활동</h2></div></div><div id="weekly-report-history" class="weekly-report-history"></div></aside>
           </div>
         </div>
