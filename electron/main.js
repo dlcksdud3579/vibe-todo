@@ -144,10 +144,24 @@ ipcMain.handle('git:period-log', async (_event, { folderPath, since, until } = {
 ipcMain.handle('git:is-repo', async (_event, folderPath) => {
   if (!folderPath) return { ok: false, connected: false, error: '폴더가 연결되지 않았습니다.' };
   return new Promise(resolve => {
-    execFile('git', ['-C', folderPath, 'rev-parse', '--is-inside-work-tree'], { windowsHide: true }, (error, stdout, stderr) => {
-      if (error) return resolve({ ok: true, connected: false, error: (stderr || 'Git 저장소가 아닙니다.').trim() });
-      resolve({ ok: true, connected: stdout.trim() === 'true' });
-    });
+    const runGit = (args, options = {}) => new Promise(done => execFile('git', ['-C', folderPath, ...args], { windowsHide: true, ...options }, (error, stdout, stderr) => done({ error, stdout, stderr })));
+    (async () => {
+      const repo = await runGit(['rev-parse', '--is-inside-work-tree']);
+      if (repo.error || repo.stdout.trim() !== 'true') return resolve({ ok: true, connected: false, error: (repo.stderr || 'Git 저장소가 아닙니다.').trim() });
+      const [root, branch, remote, status] = await Promise.all([
+        runGit(['rev-parse', '--show-toplevel']),
+        runGit(['branch', '--show-current']),
+        runGit(['remote', 'get-url', 'origin']),
+        runGit(['status', '--porcelain=v1'], { maxBuffer: 1024 * 1024 })
+      ]);
+      const files = status.stdout.split(/\r?\n/).filter(Boolean).map(line => ({
+        path: line.slice(3),
+        staged: line[0] !== ' ' && line[0] !== '?',
+        modified: line[1] !== ' ' && line[1] !== '?',
+        untracked: line[0] === '?' && line[1] === '?'
+      }));
+      resolve({ ok: true, connected: true, root: root.stdout.trim(), branch: branch.stdout.trim() || '(detached HEAD)', remote: remote.error ? '' : remote.stdout.trim(), files, stagedCount: files.filter(file => file.staged).length, changedCount: files.length });
+    })().catch(error => resolve({ ok: false, connected: false, error: error.message }));
   });
 });
 

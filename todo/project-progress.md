@@ -27,8 +27,8 @@
 
 ## 1. Git 로그 연동
 
-- [ ] [medium] 프로젝트 폴더의 Git 저장소 자동 감지
-- [ ] [medium] 현재 브랜치와 원격 저장소 정보 표시
+- [x] [medium] 프로젝트 폴더의 Git 저장소 자동 감지
+- [x] [medium] 현재 브랜치와 원격 저장소 정보 표시
 - [ ] [medium] 최근 Git 로그를 프로젝트 화면에 표시
 - [x] [medium] TODO 파일별 관련 커밋 찾기
 - [ ] [medium] TODO 항목의 파일 경로와 코드 라인 연결
@@ -116,7 +116,7 @@
 ### Git
 
 - [ ] [medium] Git 실행 파일 및 저장소 상태 확인
-- [ ] [medium] 변경 파일·staged 파일·현재 브랜치 표시
+- [x] [medium] 변경 파일·staged 파일·현재 브랜치 표시
 - [ ] [medium] 앱에서 커밋·브랜치·diff 조회
 - [ ] [medium] 필요한 경우 안전한 Git 명령 실행
 - [ ] [medium] GitHub 원격 저장소와 브랜치 링크 표시
